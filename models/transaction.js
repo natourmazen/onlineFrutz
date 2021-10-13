@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
     _id: mongoose.Types.ObjectId,
-    clientId: {
+    email: {
         type: String,
-        required: true
+        minlength: 5,
+        maxlength: 255,
+        required: true,
+        unique: true
     },
     date: {
         type: Date,
