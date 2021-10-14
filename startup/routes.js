@@ -3,6 +3,7 @@ const express = require('express');
 const fruits = require('../routes/fruits');
 const transactions = require('../routes/transactions');
 const auth = require("../routes/auth");
+const user = require('../routes/users');
 
 
 module.exports = function(app) {
@@ -10,5 +11,6 @@ module.exports = function(app) {
     app.use('/api/fruits', fruits);
     app.use('/api/transactions', transactions);
     app.use("/api/auth", auth);
+    app.use('/api/users', user);
 
-}
+};

@@ -1,6 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { fruitSchema, Fruit, validateFruit } = require("../models/fruit");
+const { Fruit } = require("../models/fruit");
+const fruitController = require('../controllers/fruitController');
+const auth = require('../middleware/auth');
+const shopOwner = require('../middleware/shopOwner');
+
 
 const router = express.Router();
 
@@ -22,8 +26,8 @@ router.get("/:name", async (req, res) => {
 // Handling Database exceptions
 // Authentication
 // Autherization
-router.post("/", async (req, res) => {
-  const { error } = validateFruit(req.body);
+router.post("/", [auth, shopOwner], async (req, res) => {
+  const { error } = fruitController.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   try {
@@ -46,7 +50,7 @@ router.post("/", async (req, res) => {
 // Authentication
 // Autherization
 router.put("/updatefruit", async (req, res) => {
-  const { error } = validateFruit(req.body);
+  const { error } = fruitController.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const fruitName = req.body.name.toLowerCase();

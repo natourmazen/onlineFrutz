@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   },
   isShopOwner: {
     type: Boolean,
-    default: false,
+    default: false
   },
   transactions: [String],
 });
@@ -51,6 +51,7 @@ userSchema.methods.generateAuthToken = function () {
 
 const User = new mongoose.model("User", userSchema);
 
+// Move to Controller
 function validateUser(user) {
   const schema = Joi.object({
     name: Joi.string().min(2).max(255).required(),

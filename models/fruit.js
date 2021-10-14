@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
+// Move to Controller
 const validators = [
   {
     validator: function (name) {
@@ -42,20 +43,10 @@ const fruitSchema = new mongoose.Schema({
 
 const Fruit = new mongoose.model("Fruit", fruitSchema);
 
-function validateFruit(fruit) {
-  const schema = Joi.object({
-    name: Joi.string().min(5).max(15).required(),
-    quantity: Joi.number().min(0),
-    price: Joi.number().min(0),
-  });
-
-  return schema.validate(fruit);
-}
 
 module.exports = {
   fruitSchema,
-  Fruit,
-  validateFruit
+  Fruit
 };
 // exports.fruitSchema = fruitSchema;
 // exports.Fruit = Fruit;
