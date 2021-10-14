@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-var validators = [
+const validators = [
   {
     validator: function (name) {
       let re = /strawberry|banana/i;
@@ -52,6 +52,8 @@ function validateFruit(fruit) {
   return schema.validate(fruit);
 }
 
-exports.fruitSchema = fruitSchema;
-exports.Fruit = Fruit;
-exports.validateFruit = validateFruit;
+exports = {
+  fruitSchema,
+  Fruit,
+  validateFruit
+};
