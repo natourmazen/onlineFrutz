@@ -62,7 +62,7 @@ function validateUser(user) {
   return schema.validate(user);
 }
 
-exports = {
+module.exports = {
   userSchema,
   User,
   validateUser

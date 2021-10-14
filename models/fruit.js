@@ -52,8 +52,11 @@ function validateFruit(fruit) {
   return schema.validate(fruit);
 }
 
-exports = {
+module.exports = {
   fruitSchema,
   Fruit,
   validateFruit
 };
+// exports.fruitSchema = fruitSchema;
+// exports.Fruit = Fruit;
+// exports.validateFruit = validateFruit;
