@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   },
   isShopOwner: {
     type: Boolean,
-    default: false
+    default: false,
   },
   transactions: [String],
 });
@@ -42,7 +42,7 @@ userSchema.methods.generateAuthToken = function () {
       _id: this._id,
       name: this.name,
       email: this.email,
-      isShopOwner: this.isShopOwner
+      isShopOwner: this.isShopOwner,
     },
     config.get("jwtPrivateKey")
   );
@@ -58,6 +58,7 @@ function validateUser(user) {
     email: Joi.string().min(5).max(255).required().email(),
     phoneNumber: Joi.string().min(4).max(15),
     password: Joi.string().min(8).max(64).required(),
+    isShopOwner: Joi.boolean()
   });
 
   return schema.validate(user);
@@ -66,6 +67,5 @@ function validateUser(user) {
 module.exports = {
   userSchema,
   User,
-  validateUser
+  validateUser,
 };
-

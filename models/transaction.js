@@ -3,24 +3,18 @@ const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
   _id: mongoose.Types.ObjectId,
-  email: {
-    type: String,
-    minlength: 5,
-    maxlength: 255,
-    required: true,
-    unique: true,
-  },
+  userId: String,
+  fruitInfo: [{ name: String, quantity: Number }],
+  totalPrice: Number,
   date: {
     type: Date,
     default: Date.now(),
   },
-  fruitInfo: [{ name: String, quantity: Number }],
 });
 
 const Transaction = new mongoose.model("Transaction", transactionSchema);
 
 module.exports = {
   transactionSchema,
-  Transaction
+  Transaction,
 };
-

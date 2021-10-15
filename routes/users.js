@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const {userSchema, User, validateUser } = require("../models/user");
-const auth = require('../middleware/auth');
+const login = require('../middleware/login');
 const shopOwner = require('../middleware/shopOwner');
 const bcrypt = require("bcrypt");
 
@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
     const token = user.generateAuthToken();
 
     res.header('x-auth-token', token);
+    res.send(token);
 });
 
 module.exports = router;
