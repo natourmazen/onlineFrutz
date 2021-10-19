@@ -9,3 +9,21 @@ exports.validate = (fruit) => {
     
     return schema.validate(fruit);
 }
+
+exports.validators = [
+    {
+      validator: function (name) {
+        let re = /strawberry|banana/i;
+        return re.test(name);
+      },
+      msg: "Invalid Fruit Name: Should be Strawberry or Banana",
+    },
+    {
+      validator: async function (name) {
+        const fruit = await Fruit.find({ name });
+  
+        return !fruit.length;
+      },
+      msg: "Fruit already exists",
+    },
+];

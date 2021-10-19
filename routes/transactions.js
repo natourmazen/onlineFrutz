@@ -2,23 +2,20 @@ const express = require("express");
 const mongoose = require("mongoose");
 const login = require("../middleware/login");
 const shopOwner = require("../middleware/shopOwner");
-const { transactionSchema, Transaction } = require("../models/transaction");
+const { Transaction } = require("../models/transaction");
 const transactionController = require("../controllers/transactionController");
 const { Fruit } = require("../models/fruit");
-const Joi = require("joi");
 
 const router = express.Router();
 
-// TODO ShopOwner
-// Handling exceptions
-// Authentication
-// Autherization
-// If the user is shop owner => return all transactions
-// if the user is a client => return their transactions
+// Return Transactions based on authorization
+// Using login middleware to check if logged in
 router.get("/", login, async (req, res) => {
   // Returning transactions of all users if shop owner
   if (req.user.isShopOwner)
-    return res.send(await Transaction.find().sort("-date"));
+    return res.send(
+      await Transaction.find().sort("-date")
+    );
 
   // Returning transactions of the signed in user
   return res.send(
@@ -26,47 +23,52 @@ router.get("/", login, async (req, res) => {
   );
 });
 
-// TODO ShopOwner
-// Handling exceptions
-// Authentication
-// Autherization
-// If the user is shop owner => return the info
-// if the user is a client => reject
+// Return transactions of a client based on id
+// This call only available for the shop owner
+// Using login middleware to check if logged in
+// Using shopOwner middleware to check if the user is a shop Owner
 router.get("/:id", [login, shopOwner], async (req, res) => {
+  // Get the transactions of the requested id
   let result = await Transaction.find({ userId: req.params.id });
+  // Check if the id is valid if not send status 404
   if (!result)
     return res.status(404).send("No transactions available for requested name");
 
+  // return the result of the transactions
   res.send(result);
 });
 
-// add quantity validation
-
-// User 3amal login => post to buy fruits (body contains fruit info)
+// Post call for the user to buy fruits
+// Using login middleware to check if logged in
 router.post("/", login, async (req, res) => {
+  // Valdiating fruit Information based on validateFruitInfo
+  // found in transactionController file
   let fruitInfo = req.body.fruitInfo;
   const { error } = transactionController.validateFruitInfo(fruitInfo);
   if (error) return res.status(400).send(error.details[0].message);
 
-  /* fruitInfo
-    [
-      {name: banana, quantity: 2},
-      {name: strawberry, quantity: 2}
-    ]
-  */
-  // We need to check if the quantity to buy is available
+  // err flag set to false
+  // This flag is used in order for us to be able to
+  // return an error in case of any inside the array of objects
   let err = false;
-  for (let fruit of fruitInfo) {
-    err = await validateQuantity(fruit);
-  }
+  // loop over fruitInfo array and validate the quantity of each object
+  for (let fruit of fruitInfo)
+    err = await transactionController.validateQuantity(fruit);
+  
+  // return an error in case of any inside the array of objects
   if (err) return res.status(400).send("Not enough quantity in stock");
 
-  // We need to check if the user bought 2 of the fruit in the same day
-  // Current Timestamp in milliseconds
+
+  // Following code block is in order to check if
+  // the user bought 2 of the fruit in the same day
+  /* ---------------------------------------------------------------- */
+
+  // current Timestamp in milliseconds
   let currentTs = new Date().getTime();
+  // yesterday's Timestamp in milliseconds
   let yesterdayTs = currentTs - 24 * 3600000;
 
-  // Past 24 hour transactions
+  // get all yesterday's and today's transactions of the logged in user
   let pastTransactions = await Transaction.find({
     date: {
       $gte: new Date(yesterdayTs),
@@ -74,17 +76,22 @@ router.post("/", login, async (req, res) => {
     userId: req.user._id,
   });
 
+  // Initialize variable needed to keep track of the fruits bought
   let strawberryBought = 0;
   let bananaBought = 0;
 
+  // loop over the past transactions and update the value of the
+  // specific fruit bought
   pastTransactions.forEach((transaction) => {
 
+    // For strawberry
     transaction.fruitInfo.forEach((currentFruitInfo) => {
       return currentFruitInfo.name.toLowerCase() == "strawberry"
         ? strawberryBought += currentFruitInfo.quantity
         : 0;
     });
 
+    // For banana
     transaction.fruitInfo.forEach((currentFruitInfo) => {
       return currentFruitInfo.name.toLowerCase() == "banana"
         ? bananaBought += currentFruitInfo.quantity
@@ -92,51 +99,75 @@ router.post("/", login, async (req, res) => {
     });
   });
 
+  // loop over the requested to buy fruit information
   fruitInfo.forEach((currentFruitInfo) => {
-    // For Strawberry
+    // for strawberry name we check if the result of the summation
+    // of the already bought with the quantity to buy
     if (currentFruitInfo.name.toLowerCase() == "strawberry") {
-      // Result of all past quantity bought and request to buy
       let totalResult = strawberryBought + currentFruitInfo.quantity;
+      // set err to true if the result is more than 2
       if (totalResult > 2)
-      err=true;
+        err=true;
     }
 
-    // For Banana
+    // for banana name we check if the result of the summation
+    // of the already bought with the quantity to buy
     if (currentFruitInfo.name.toLowerCase() == "banana") {
-      // Result of all past quantity bought and request to buy
       let totalResult = bananaBought + currentFruitInfo.quantity;
+      // set err to true if the result is more than 2
       if (totalResult > 2)
         err = true;
     }
   });
-
+  
+  // return an error in case of attempting to buy more
+  // than 2 of the same fruit the same day
   if(err){
-    return res.status(400).send("You cannot buy more than 2 of the same fruit a day");
+    return res
+            .status(400)
+            .send("You cannot buy more than 2 of the same fruit a day");
   }
 
+  /* ---------------------------------------------------------------- */
+
+  // Following code block is in order to create the transaction
+  // after passing all the validations
+  /* ---------------------------------------------------------------- */
+
+  // Initializing variables to get the current price of each
   let banana = await Fruit.findOne({ name: "banana" });
   let strawberry = await Fruit.findOne({ name: "strawberry" });
 
+  // get price of each
   let strawberryPrice = strawberry.price;
   let bananaPrice = banana.price;
 
+  // Initializing the quantity of each fruit
   let strawberryQuantity = 0;
   let bananaQuantity = 0;
 
+  // Initializing totalPrice in order sum the total price
   let totalPrice = 0;
 
+  // loop over the requested to buy fruit information
   fruitInfo.forEach((currentFruitInfo) => {
+    // for strawberry we get the quantity to buy
+    // then we multiply it by the current price
+    // then add it to the total price
     if (currentFruitInfo.name.toLowerCase() == "strawberry") {
       strawberryQuantity = currentFruitInfo.quantity;
       totalPrice += strawberryPrice * currentFruitInfo.quantity;
     }
-
+    // for banana we get the quantity to buy
+    // then we multiply it by the current price
+    // then add it to the total price
     if (currentFruitInfo.name.toLowerCase() == "banana") {
       bananaQuantity = currentFruitInfo.quantity;
       totalPrice += bananaPrice * currentFruitInfo.quantity;
     }
   });
 
+  // Initialize new transaction with all the needed values
   let transaction = new Transaction({
     _id: mongoose.Types.ObjectId(),
     userId: req.user._id,
@@ -144,8 +175,12 @@ router.post("/", login, async (req, res) => {
     totalPrice,
   });
 
+  // save the created transaction
   transaction = await transaction.save();
 
+  /* ---------------------------------------------------------------- */
+
+  // Update the quantity of strawberry fruit
   await Fruit.updateOne(
     { name: "strawberry" },
     {
@@ -154,6 +189,8 @@ router.post("/", login, async (req, res) => {
       },
     }
   );
+
+  // Update the quantity of banana fruit
   await Fruit.updateOne(
     { name: "banana" },
     {
@@ -163,32 +200,9 @@ router.post("/", login, async (req, res) => {
     }
   );
 
+  // send the transaction
   res.send(transaction);
 });
 
-// Check if the array length 1 or 2 DONE
-// Check if strawberry or banana DONE
-// Check if there is available fruits for the request
-// The user can only buy 2 fruits in a day
-function validateFruitInfo(fruitInfo) {
-  const schema = Joi.array()
-    .min(1)
-    .max(2)
-    .required()
-    .items({
-      name: Joi.string().regex("/strawberry|banana/i").required(),
-      quantity: Joi.number().min(1).max(2).required(),
-    });
-
-  return schema.validate(fruitInfo);
-}
-
-async function validateQuantity(fruit) {
-  let fruitInStock = await Fruit.findOne({ name: fruit.name.toLowerCase() });
-  if (fruit.quantity > fruitInStock.quantity) {
-    return true;
-    //res.status(400).send("Not enough quantity in stock")
-  }
-}
 
 module.exports = router;

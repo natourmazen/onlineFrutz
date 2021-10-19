@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-// const Joi = require('joi');
 
 const transactionSchema = new mongoose.Schema({
   _id: mongoose.Types.ObjectId,
@@ -16,5 +15,5 @@ const Transaction = new mongoose.model("Transaction", transactionSchema);
 
 module.exports = {
   transactionSchema,
-  Transaction,
+  Transaction
 };
