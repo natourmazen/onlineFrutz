@@ -32,8 +32,8 @@ router.get("/", login, async (req, res) => {
 // Autherization
 // If the user is shop owner => return the info
 // if the user is a client => reject
-router.get("/:name", [login, shopOwner], async (req, res) => {
-  let result = await Transaction.find({ name: req.params.name });
+router.get("/:id", [login, shopOwner], async (req, res) => {
+  let result = await Transaction.find({ userId: req.params.id });
   if (!result)
     return res.status(404).send("No transactions available for requested name");
 
