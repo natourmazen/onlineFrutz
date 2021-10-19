@@ -15,7 +15,9 @@ const router = express.Router();
 // If the user is shop owner => return all transactions
 // if the user is a client => return their transactions
 router.get("/", [login, shopOwner], async (req, res) => {
-  let result = await Transaction.find().sort("-date");
+  let result = await Transaction
+                      .find()
+                      .sort("-date");
 
   res.send(result);
 });

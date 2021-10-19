@@ -26,21 +26,27 @@ router.get("/:name", async (req, res) => {
 // Authentication
 // Autherization
 router.post("/", [login, shopOwner], async (req, res) => {
+  // Validating request body
   const { error } = fruitController.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  
   try {
+    // Creating a fruit with the requested body
     let fruit = new Fruit({
       _id: mongoose.Types.ObjectId(),
       name: req.body.name.toLowerCase(),
       quantity: req.body.quantity,
       price: req.body.price,
     });
+    // Saving the result in the database
     fruit = await fruit.save();
-
+    // Sending fruit
     res.send(fruit);
-  } catch (err) {
-    res.send(err.message);
+
+    // Catching exceptions if any occurred
+  } catch (exception) {
+    res.send(exception.message);
   }
 });
 
