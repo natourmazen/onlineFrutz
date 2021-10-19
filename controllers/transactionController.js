@@ -1,10 +1,12 @@
 const Joi = require("joi");
 
-exports.validate = (transaction) => {
-  const schema = Joi.object({
-    name: Joi.string().required(),
-    quantity: Joi.number().min(0).required(),
-  });
+exports.validateFruitInfo = (fruitInfo) => {
+  
+  const schema = Joi.array().min(1).max(2).required()
+                    .items({
+                      name: Joi.string().regex('/strawberry|banana/i').required(),
+                      quantity: Joi.number().min(1).max(2).required()
+                    });
 
-  return schema.validate(transaction);
+  return schema.validate(fruitInfo);
 };
