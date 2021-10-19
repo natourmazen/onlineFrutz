@@ -31,8 +31,7 @@ const userSchema = new mongoose.Schema({
   isShopOwner: {
     type: Boolean,
     default: false,
-  },
-  transactions: [String],
+  }
 });
 
 userSchema.methods.generateAuthToken = function () {
@@ -52,5 +51,5 @@ const User = new mongoose.model("User", userSchema);
 
 module.exports = {
   userSchema,
-  User
+  User,
 };

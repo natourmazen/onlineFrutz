@@ -1,8 +1,7 @@
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const { User } = require("../models/user");
 const express = require("express");
-const loginController = require('../controllers/loginController');
+const loginController = require("../controllers/loginController");
 
 const router = express.Router();
 
@@ -22,6 +21,5 @@ router.post("/", async (req, res) => {
   // Sending user's authentication token
   res.send(user.generateAuthToken());
 });
-
 
 module.exports = router;

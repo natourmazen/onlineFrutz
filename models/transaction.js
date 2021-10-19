@@ -15,5 +15,5 @@ const Transaction = new mongoose.model("Transaction", transactionSchema);
 
 module.exports = {
   transactionSchema,
-  Transaction
+  Transaction,
 };

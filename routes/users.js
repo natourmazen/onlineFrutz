@@ -6,45 +6,47 @@ const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-    // Validate request body
-    const { error } = userController.validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+router.post("/", async (req, res) => {
+  // Validate request body
+  const { error } = userController.validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-    // Check if email is already registered
-    let user = await User.findOne({email: req.body.email});
-    if (user) return res.status(400).send('Email already registered');
+  // Check if email is already registered
+  let user = await User.findOne({ email: req.body.email });
+  if (user) return res.status(400).send("Email already registered");
 
-    // Initializing variables in order to not have undefined values
-    // if the request body does not have these values
-    let phoneNumber = req.body.phonenumber ? req.body.phonenumber : null;
-    let isShopOwner = req.body.isShopOwner ? req.body.isShopOwner : false;
+  // Check if shop owner is already registered
+  let shopOwner = await User.findOne({ isShopOwner: true });
+  if (req.body.isShopOwner == true) return res.status(403).send("Shop owner already exists.");
 
-    // Creating new user
-    user = new User({
-        _id: mongoose.Types.ObjectId(),
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-        phoneNumber,
-        isShopOwner
-    });
+  // Initializing variables in order to not have undefined values
+  // if the request body does not have these values
+  let phoneNumber = req.body.phonenumber ? req.body.phonenumber : null;
+  let isShopOwner = req.body.isShopOwner ? req.body.isShopOwner : false;
 
-    // Hashing the password with salt
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+  // Creating new user
+  user = new User({
+    _id: mongoose.Types.ObjectId(),
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    phoneNumber,
+    isShopOwner,
+  });
 
-    // save the created user
-    await user.save();
+  // Hashing the password with salt
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
 
-    // Generating token for user
-    const token = user.generateAuthToken();
+  // save the created user
+  await user.save();
 
-    // sending token as a header and body
-    res.header('x-auth-token', token);
-    res.send(token);
+  // Generating token for user
+  const token = user.generateAuthToken();
+
+  // sending token as a header and body
+  res.header("x-auth-token", token);
+  res.send(token);
 });
 
 module.exports = router;
-
-

@@ -13,9 +13,7 @@ const router = express.Router();
 router.get("/", login, async (req, res) => {
   // Returning transactions of all users if shop owner
   if (req.user.isShopOwner)
-    return res.send(
-      await Transaction.find().sort("-date")
-    );
+    return res.send(await Transaction.find().sort("-date"));
 
   // Returning transactions of the signed in user
   return res.send(
@@ -54,10 +52,9 @@ router.post("/", login, async (req, res) => {
   // loop over fruitInfo array and validate the quantity of each object
   for (let fruit of fruitInfo)
     err = await transactionController.validateQuantity(fruit);
-  
+
   // return an error in case of any inside the array of objects
   if (err) return res.status(400).send("Not enough quantity in stock");
-
 
   // Following code block is in order to check if
   // the user bought 2 of the fruit in the same day
@@ -83,18 +80,17 @@ router.post("/", login, async (req, res) => {
   // loop over the past transactions and update the value of the
   // specific fruit bought
   pastTransactions.forEach((transaction) => {
-
     // For strawberry
     transaction.fruitInfo.forEach((currentFruitInfo) => {
       return currentFruitInfo.name.toLowerCase() == "strawberry"
-        ? strawberryBought += currentFruitInfo.quantity
+        ? (strawberryBought += currentFruitInfo.quantity)
         : 0;
     });
 
     // For banana
     transaction.fruitInfo.forEach((currentFruitInfo) => {
       return currentFruitInfo.name.toLowerCase() == "banana"
-        ? bananaBought += currentFruitInfo.quantity
+        ? (bananaBought += currentFruitInfo.quantity)
         : 0;
     });
   });
@@ -106,8 +102,7 @@ router.post("/", login, async (req, res) => {
     if (currentFruitInfo.name.toLowerCase() == "strawberry") {
       let totalResult = strawberryBought + currentFruitInfo.quantity;
       // set err to true if the result is more than 2
-      if (totalResult > 2)
-        err=true;
+      if (totalResult > 2) err = true;
     }
 
     // for banana name we check if the result of the summation
@@ -115,17 +110,16 @@ router.post("/", login, async (req, res) => {
     if (currentFruitInfo.name.toLowerCase() == "banana") {
       let totalResult = bananaBought + currentFruitInfo.quantity;
       // set err to true if the result is more than 2
-      if (totalResult > 2)
-        err = true;
+      if (totalResult > 2) err = true;
     }
   });
-  
+
   // return an error in case of attempting to buy more
   // than 2 of the same fruit the same day
-  if(err){
+  if (err) {
     return res
-            .status(400)
-            .send("You cannot buy more than 2 of the same fruit a day");
+      .status(400)
+      .send("You cannot buy more than 2 of the same fruit a day");
   }
 
   /* ---------------------------------------------------------------- */
@@ -203,6 +197,5 @@ router.post("/", login, async (req, res) => {
   // send the transaction
   res.send(transaction);
 });
-
 
 module.exports = router;

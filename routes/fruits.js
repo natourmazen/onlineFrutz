@@ -20,8 +20,7 @@ router.get("/:name", async (req, res) => {
   res.send(
     // get the desired fruit by name
     await Fruit.find({ name: req.params.name.toLowerCase() })
-    );
-
+  );
 });
 
 // Create a fruit if authorized
@@ -72,14 +71,14 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
   // update fruit
   await Fruit.updateOne(
     { name: fruitName },
-    { 
+    {
       // Increment the quantity by the provided quantity
       quantity: fruit[0].quantity + quantity,
       // set price to new price
-      price
+      price,
     }
   );
-  
+
   // send the old fruit (before update)
   res.send(fruit);
 });
