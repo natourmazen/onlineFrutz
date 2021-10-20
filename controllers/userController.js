@@ -1,5 +1,5 @@
 const Joi = require("joi");
-
+// Joi validation of sign up request
 exports.validate = (user) => {
   const schema = Joi.object({
     name: Joi.string().min(2).max(255).required(),
