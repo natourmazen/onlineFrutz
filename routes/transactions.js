@@ -26,17 +26,31 @@ router.get("/", login, async (req, res) => {
 // Using login middleware to check if logged in
 // Using shopOwner middleware to check if the user is a shop Owner
 router.get("/:id", [login, shopOwner], async (req, res) => {
-  // Get the transactions of the requested id
-  let result = await Transaction.find({ userId: req.params.id });
-  // Check if the id is valid if not send status 404
-  if (!result)
-    return res.status(404).send("No transactions available for requested name");
+  try{
+    // Get the transactions of the requested id
+    let result = await Transaction.find({ userId: req.params.id });
+    // Check if the id is valid if not send status 404
+    if (!result.length)
+      return res.status(404).send("No transactions available for requested id");
 
-  // return the result of the transactions
-  res.send(result);
+    // return the result of the transactions
+    return res.send(result);
+  }
+  catch(exception){
+    return res.send(exception.message);
+  }
+
 });
 
 // Post call for the user to buy fruits
+/* 
+  Request Format example: {
+                            "fruitInfo":[
+                                          {"name": "banana", "quantity":1},
+                                          {"name": "strawberry", "quantity":1}
+                                        ]
+                          }
+*/
 // Using login middleware to check if logged in
 router.post("/", login, async (req, res) => {
   // Valdiating fruit Information based on validateFruitInfo
@@ -65,13 +79,19 @@ router.post("/", login, async (req, res) => {
   // yesterday's Timestamp in milliseconds
   let yesterdayTs = currentTs - 24 * 3600000;
 
-  // get all yesterday's and today's transactions of the logged in user
-  let pastTransactions = await Transaction.find({
-    date: {
-      $gte: new Date(yesterdayTs),
-    },
-    userId: req.user._id,
-  });
+  let pastTransactions;
+  try{
+    // get all yesterday's and today's transactions of the logged in user
+    pastTransactions = await Transaction.find({
+      date: {
+        $gte: new Date(yesterdayTs),
+      },
+      userId: req.user._id,
+    });
+  }
+  catch(exception){
+    return res.send(exception.message);
+  }
 
   // Initialize variable needed to keep track of the fruits bought
   let strawberryBought = 0;
@@ -129,12 +149,20 @@ router.post("/", login, async (req, res) => {
   /* ---------------------------------------------------------------- */
 
   // Initializing variables to get the current price of each
-  let banana = await Fruit.findOne({ name: "banana" });
-  let strawberry = await Fruit.findOne({ name: "strawberry" });
+  let banana, strawberry, strawberryPrice, bananaPrice;
+  try{
+    banana = await Fruit.findOne({ name: "banana" });
+    strawberry = await Fruit.findOne({ name: "strawberry" });
 
-  // get price of each
-  let strawberryPrice = strawberry.price;
-  let bananaPrice = banana.price;
+    // get price of each
+    strawberryPrice = strawberry.price;
+    bananaPrice = banana.price;
+  }
+  catch(exception){
+    return res.send(exception.message);
+  }
+
+  
 
   // Initializing the quantity of each fruit
   let strawberryQuantity = 0;
@@ -169,33 +197,51 @@ router.post("/", login, async (req, res) => {
     totalPrice,
   });
 
-  // save the created transaction
-  transaction = await transaction.save();
+  try{
+
+    // Get connection in order to create a session for the transaction
+    let connection = mongoose.connection;
+    // Create session
+    const session = await connection.startSession();
+    
+    // Execute Transaction contains: - saving of the transaction
+    //                               - updating purchased fruit/s quantity
+    await session.withTransaction(async () => {
+      // save the created transaction
+      transaction = await transaction.save();
 
   /* ---------------------------------------------------------------- */
 
-  // Update the quantity of strawberry fruit
-  await Fruit.updateOne(
-    { name: "strawberry" },
-    {
-      $inc: {
-        quantity: -strawberryQuantity,
-      },
-    }
-  );
+      // Update the quantity of strawberry fruit
+      await Fruit.updateOne(
+        { name: "strawberry" },
+        {
+          $inc: {
+            quantity: -strawberryQuantity,
+          },
+        }
+      );
 
-  // Update the quantity of banana fruit
-  await Fruit.updateOne(
-    { name: "banana" },
-    {
-      $inc: {
-        quantity: -bananaQuantity,
-      },
-    }
-  );
+      // Update the quantity of banana fruit
+      await Fruit.updateOne(
+        { name: "banana" },
+        {
+          $inc: {
+            quantity: -bananaQuantity,
+          },
+        }
+      );
 
-  // send the transaction
-  res.send(transaction);
+      // send the transaction
+      return res.send(transaction);
+    });
+    
+    // End Session
+    session.endSession();
+  }
+  catch(exception){
+    return res.send(exception.message);
+  }
 });
 
 module.exports = router;
