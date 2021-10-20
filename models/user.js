@@ -34,6 +34,8 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// This methos is to add the user info in the Json Web Token
+// We added the userId, name, email, and if he is a shop owner or not
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {

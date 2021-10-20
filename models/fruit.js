@@ -1,16 +1,19 @@
 const mongoose = require("mongoose");
 
+// This custome validator validates the addition of fruits
 const validators = [
   {
+    // To only allow the shop owner add strawberry or banana as a fruit
     validator: function (name) {
       let regex = /\bstrawberry\b|\bbanana\b/i;
-      return regex.test(name);
+      return regex.test(name); // check if the shop owner input matches the regular expression expression
     },
     msg: "Invalid Fruit Name: Should be Strawberry or Banana",
   },
   {
+    // If strawberry or banana is already added to the database, it will print a message "Fruit already exists"
     validator: async function (name) {
-      const fruit = await Fruit.find({ name });
+      const fruit = await Fruit.find({ name }); // chech if the input (strawberry or banana) exist in the database
 
       return !fruit.length;
     },
