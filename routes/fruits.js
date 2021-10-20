@@ -17,11 +17,13 @@ router.get("/", async (req, res) => {
 
 // return fruit based on the requested name
 router.get("/:name", async (req, res) => {
-  res.send(
-    // get the desired fruit by name
-    // TODO IF NOT FOUND SEND MESSAGE
-    await Fruit.findOne({ name: req.params.name.toLowerCase() })
-  );
+  // get the desired fruit by name
+  let result = await Fruit.findOne({ name: req.params.name.toLowerCase() });
+  result 
+  ? res.send(result)
+  : res.status(400).send('No fruit with this name');
+
+  return;
 });
 
 // Create a fruit if authorized
@@ -61,21 +63,21 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
 
   // Check if the provided fruit name in body is valid
   const fruitName = req.body.name.toLowerCase();
-  let fruit = await Fruit.find({ name: fruitName });
+  let fruit = await Fruit.findOne({ name: fruitName });
   if (!fruit) return res.status(400).send("Invalid fruit");
 
   // get the quantity from body if not given set to zero
   // get the price from the body if not given keep it the same
   // TODO CHECK IF UNDEFINED
   let quantity = req.body.quantity ? req.body.quantity : 0;
-  let price = req.body.price ? req.body.price : fruit[0].price;
+  let price = req.body.price ? req.body.price : fruit.price;
 
   // update fruit
   await Fruit.updateOne(
     { name: fruitName },
     {
       // Increment the quantity by the provided quantity
-      quantity: fruit[0].quantity + quantity,
+      quantity: fruit.quantity + quantity,
       // set price to new price
       price,
     }
