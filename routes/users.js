@@ -17,7 +17,8 @@ router.post("/", async (req, res) => {
 
   // Check if shop owner is already registered
   let shopOwner = await User.findOne({ isShopOwner: true });
-  if (req.body.isShopOwner == true) return res.status(403).send("Shop owner already exists.");
+  if (shopOwner && req.body.isShopOwner)
+    return res.status(403).send("Shop owner already exists.");
 
   // Initializing variables in order to not have undefined values
   // if the request body does not have these values

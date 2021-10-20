@@ -19,7 +19,8 @@ router.get("/", async (req, res) => {
 router.get("/:name", async (req, res) => {
   res.send(
     // get the desired fruit by name
-    await Fruit.find({ name: req.params.name.toLowerCase() })
+    // TODO IF NOT FOUND SEND MESSAGE
+    await Fruit.findOne({ name: req.params.name.toLowerCase() })
   );
 });
 
@@ -65,6 +66,7 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
 
   // get the quantity from body if not given set to zero
   // get the price from the body if not given keep it the same
+  // TODO CHECK IF UNDEFINED
   let quantity = req.body.quantity ? req.body.quantity : 0;
   let price = req.body.price ? req.body.price : fruit[0].price;
 

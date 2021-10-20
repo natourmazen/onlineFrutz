@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const validators = [
   {
     validator: function (name) {
-      let re = /strawberry|banana/i;
-      return re.test(name);
+      let regex = /\bstrawberry\b|\bbanana\b/i;
+      return regex.test(name);
     },
     msg: "Invalid Fruit Name: Should be Strawberry or Banana",
   },
