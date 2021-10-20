@@ -9,7 +9,7 @@ const router = express.Router();
 
 // return all the fruits
 router.get("/", async (req, res) => {
-  res.send(
+  return res.send(
     // get all fruits from the database
     await Fruit.find().sort("-name")
   );
@@ -72,19 +72,24 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
   let quantity = req.body.quantity ? req.body.quantity : 0;
   let price = req.body.price ? req.body.price : fruit.price;
 
-  // update fruit
-  await Fruit.updateOne(
-    { name: fruitName },
-    {
-      // Increment the quantity by the provided quantity
-      quantity: fruit.quantity + quantity,
-      // set price to new price
-      price,
-    }
-  );
+  try {
+    // update fruit
+    await Fruit.updateOne(
+      { name: fruitName },
+      {
+        // Increment the quantity by the provided quantity
+        quantity: fruit.quantity + quantity,
+        // set price to new price
+        price,
+      }
+    );
 
-  // send the old fruit (before update)
-  res.send(fruit);
+    // send the old fruit (before update)
+    return res.send(fruit);
+  }
+  catch(exception){
+    return res.send(exception.message);
+  }
 });
 
 module.exports = router;
