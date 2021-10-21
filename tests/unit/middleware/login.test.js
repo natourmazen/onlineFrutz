@@ -32,16 +32,18 @@ describe("login middleware", () => {
       name: "mockUser",
       email: "mockUser@example.com",
       password: "123445678",
+      isShopOwner: false,
     };
 
     const token = new User(user).generateAuthToken();
-
-    const res = mockResponse();
-    const req = mockRequest(token);
+    const req = {
+      header: jest.fn().mockReturnValue(token)
+    };
+    const res = {};
     const next = jest.fn();
 
     login(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toBe(400);
   });
 });

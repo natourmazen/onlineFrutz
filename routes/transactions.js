@@ -4,6 +4,7 @@ const login = require("../middleware/login");
 const shopOwner = require("../middleware/shopOwner");
 const { Transaction } = require("../models/transaction");
 const transactionController = require("../controllers/transactionController");
+const { validateQuantity } = require("../helperFunctions/validateQuantity");
 const { Fruit } = require("../models/fruit");
 
 const router = express.Router();
@@ -26,7 +27,7 @@ router.get("/", login, async (req, res) => {
 // Using login middleware to check if logged in
 // Using shopOwner middleware to check if the user is a shop Owner
 router.get("/:id", [login, shopOwner], async (req, res) => {
-  try{
+  try {
     // Get the transactions of the requested id
     let result = await Transaction.find({ userId: req.params.id });
     // Check if the id is valid if not send status 404
@@ -35,11 +36,9 @@ router.get("/:id", [login, shopOwner], async (req, res) => {
 
     // return the result of the transactions
     return res.send(result);
-  }
-  catch(exception){
+  } catch (exception) {
     return res.send(exception.message);
   }
-
 });
 
 // Post call for the user to buy fruits
@@ -64,8 +63,7 @@ router.post("/", login, async (req, res) => {
   // return an error in case of any inside the array of objects
   let err = false;
   // loop over fruitInfo array and validate the quantity of each object
-  for (let fruit of fruitInfo)
-    err = await transactionController.validateQuantity(fruit);
+  for (let fruit of fruitInfo) err = await validateQuantity(fruit);
 
   // return an error in case of any inside the array of objects
   if (err) return res.status(400).send("Not enough quantity in stock");
@@ -80,7 +78,7 @@ router.post("/", login, async (req, res) => {
   let yesterdayTs = currentTs - 24 * 3600000;
 
   let pastTransactions;
-  try{
+  try {
     // get all yesterday's and today's transactions of the logged in user
     pastTransactions = await Transaction.find({
       date: {
@@ -88,8 +86,7 @@ router.post("/", login, async (req, res) => {
       },
       userId: req.user._id,
     });
-  }
-  catch(exception){
+  } catch (exception) {
     return res.send(exception.message);
   }
 
@@ -150,19 +147,16 @@ router.post("/", login, async (req, res) => {
 
   // Initializing variables to get the current price of each
   let banana, strawberry, strawberryPrice, bananaPrice;
-  try{
+  try {
     banana = await Fruit.findOne({ name: "banana" });
     strawberry = await Fruit.findOne({ name: "strawberry" });
 
     // get price of each
     strawberryPrice = strawberry.price;
     bananaPrice = banana.price;
-  }
-  catch(exception){
+  } catch (exception) {
     return res.send(exception.message);
   }
-
-  
 
   // Initializing the quantity of each fruit
   let strawberryQuantity = 0;
@@ -197,20 +191,19 @@ router.post("/", login, async (req, res) => {
     totalPrice,
   });
 
-  try{
-
+  try {
     // Get connection in order to create a session for the transaction
     let connection = mongoose.connection;
     // Create session
     const session = await connection.startSession();
-    
+
     // Execute Transaction contains: - saving of the transaction
     //                               - updating purchased fruit/s quantity
     await session.withTransaction(async () => {
       // save the created transaction
       transaction = await transaction.save();
 
-  /* ---------------------------------------------------------------- */
+      /* ---------------------------------------------------------------- */
 
       // Update the quantity of strawberry fruit
       await Fruit.updateOne(
@@ -235,11 +228,10 @@ router.post("/", login, async (req, res) => {
       // send the transaction
       return res.send(transaction);
     });
-    
+
     // End Session
     session.endSession();
-  }
-  catch(exception){
+  } catch (exception) {
     return res.send(exception.message);
   }
 });
