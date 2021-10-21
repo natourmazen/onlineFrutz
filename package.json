@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "test": "jest --watchAll --verbose"
   },
   "author": "Ahmad & Mazen",
   "license": "ISC",
@@ -18,5 +18,8 @@
     "mongoose": "^6.0.10",
     "nodemon": "^2.0.13",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "jest": "^27.3.1"
   }
 }
