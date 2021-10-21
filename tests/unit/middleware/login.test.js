@@ -27,6 +27,19 @@ describe("login middleware", () => {
   });
 
   it("should return an error if token is not valid", () => {
+    
+    const token = 'invalid-token';
+
+    const req = mockRequest(token);
+    const res = mockResponse();
+    const next = jest.fn();
+
+    login(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("should pass if token is valid", () => {
     const user = {
       _id: mongoose.Types.ObjectId(),
       name: "mockUser",
@@ -36,14 +49,13 @@ describe("login middleware", () => {
     };
 
     const token = new User(user).generateAuthToken();
-    const req = {
-      header: jest.fn().mockReturnValue(token)
-    };
-    const res = {};
+
+    const req = mockRequest(token);
+    const res = mockResponse();
     const next = jest.fn();
 
     login(req, res, next);
 
-    expect(res.status).toBe(400);
+    expect(req.user).toBeTruthy();
   });
 });
