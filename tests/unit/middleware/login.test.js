@@ -27,8 +27,7 @@ describe("login middleware", () => {
   });
 
   it("should return an error if token is not valid", () => {
-    
-    const token = 'invalid-token';
+    const token = "invalid-token";
 
     const req = mockRequest(token);
     const res = mockResponse();
