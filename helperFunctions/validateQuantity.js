@@ -5,4 +5,5 @@ const { Fruit } = require("../models/fruit");
 exports.validateQuantity = async (fruit) => {
   let fruitInStock = await Fruit.findOne({ name: fruit.name.toLowerCase() });
   if (fruit.quantity > fruitInStock.quantity) return true;
+  return false;
 };

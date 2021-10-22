@@ -1,16 +1,38 @@
-const {
-  validateQuantity,
-} = require("../../../helperFunctions/validateQuantity");
+const { validateQuantity } = require("../../../helperFunctions/validateQuantity");
 const { Fruit } = require("../../../models/fruit");
 
 describe("validateQuantity", () => {
-  it("should return true if fruit quantity requested is greater than the quantity in stock", () => {
-    const fruit = new Fruit({
+  beforeAll(() => {
+    Fruit.findOne = jest.fn().mockResolvedValue({
+            name: 'strawberry',
+            quantity: 1,
+            price: 1
+        })
+  });
+  it("should return true if fruit quantity requested is greater than the quantity in stock", async () => {
+    
+    const fruit = {
       name: "strawberry",
-      quantity: 10,
-      price: 3,
-    });
+      quantity: 2
+    };
 
-    expect(validateQuantity(fruit)).toBeTruthy();
+    const result = await validateQuantity(fruit);
+
+    expect(result).toBe(true);
+
+  });
+
+  it("should return false if fruit quantity requested is less than the quantity in stock", async () => {
+    
+    const fruit = {
+      name: "strawberry",
+      quantity: 0
+    };
+
+    const result = await validateQuantity(fruit);
+
+    expect(result).toBe(false);
+
   });
 });
+

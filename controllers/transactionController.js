@@ -10,7 +10,7 @@ exports.validateFruitInfo = (fruitInfo) => {
     .items({
       // the object consists of a name that will be either strawberry or banana, and quantity
       name: Joi.string()
-        .regex(/strawberry|banana/i)
+        .regex(/\bstrawberry\b|\bbanana\b/i)
         .required(),
       quantity: Joi.number().min(1).max(2).required(),
     });
