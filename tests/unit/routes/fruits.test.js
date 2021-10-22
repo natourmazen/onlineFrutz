@@ -8,13 +8,13 @@ const mockResponse = () => {
     res.send = jest.fn().mockReturnValue(res);
     return res;
 };
-  
+
 const mockRequest = (token) => {
     const req = {};
     req.header = jest.fn().mockReturnValue(token);
     return req;
 };
-  
+
 
 
 const strawberry = {
@@ -29,19 +29,31 @@ const banana = {
 };
 describe("GET /api/fruits ", () => {
     beforeAll(() => {
-        jest.setTimeout(100000);
-        jest.useFakeTimers('legacy')
-        Fruit.find = jest.fn().mockResolvedValue([
-            strawberry, banana
-        ]);
-        Fruit.find.sort = jest.fn().mockResolvedValue([
+        Fruit.find = jest.fn(() => Fruit);
+        Fruit.sort = jest.fn().mockResolvedValue([
             strawberry, banana
         ]);
     });
-    it("should return with an array of fruit objects", async () => {
-        
-      const response = await request(app).get("/api/fruits");
-      expect(response.body).toEqual([strawberry, banana]);
-    //   expect(response.statusCode).toBe(200);
+    it("should return an array of fruit objects", async () => {
+
+        const response = await request(app).get("/api/fruits");
+        expect(response.body).toEqual([strawberry, banana]);
+        expect(response.statusCode).toBe(200);
     });
-  });
+});
+
+describe("GET /api/fruits/:name ", () => {
+    
+    it("should return the fruit object given", async () => {
+        Fruit.findOne = jest.fn(() => strawberry);
+        const response = await request(app).get("/api/fruits/strawberry");
+        expect(response.body).toEqual(strawberry);
+        expect(response.statusCode).toBe(200);
+    });
+
+    it("should return an error if fruit does not exist", async () => {
+        Fruit.findOne = jest.fn();
+        const response = await request(app).get("/api/fruits/strawberry");
+        expect(response.statusCode).toBe(400);
+    });
+});
