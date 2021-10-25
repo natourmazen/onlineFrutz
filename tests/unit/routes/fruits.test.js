@@ -2,19 +2,6 @@ const request = require("supertest");
 const app = require("../../../startup/app");
 const { Fruit } = require("../../../models/fruit");
 
-const mockResponse = () => {
-  const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
-  return res;
-};
-
-const mockRequest = (token) => {
-  const req = {};
-  req.header = jest.fn().mockReturnValue(token);
-  return req;
-};
-
 const strawberry = {
   name: "strawberry",
   quantity: 4,

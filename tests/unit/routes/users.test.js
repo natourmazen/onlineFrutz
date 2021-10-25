@@ -1,8 +1,7 @@
 const request = require("supertest");
-const bcrypt = require("bcrypt");
 const app = require("../../../startup/app");
 const { User } = require("../../../models/user");
-const { when } = require('jest-when');
+const { when } = require("jest-when");
 
 let user1 = new User({
   name: "example",
@@ -41,9 +40,7 @@ describe("POST /api/users ", () => {
 
   it("should return an error if a shop owner is already registered and the new request also has shop owner true", async () => {
     User.findOne = jest.fn();
-    when(User.findOne)
-          .calledWith({ isShopOwner: true })
-          .mockReturnValue(user1);
+    when(User.findOne).calledWith({ isShopOwner: true }).mockReturnValue(user1);
     const response = await request(app).post("/api/users").send(user3);
     expect(response.statusCode).toBe(403);
   });
