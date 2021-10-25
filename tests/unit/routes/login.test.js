@@ -38,8 +38,9 @@ describe("POST /api/login ", () => {
   });
 
   it("should return an exception if an error occurred while finding user", async () => {
-    jest.spyOn(User, 'findOne')
-      .mockImplementation(() => {throw new Error});
+    jest.spyOn(User, "findOne").mockImplementation(() => {
+      throw new Error();
+    });
     const response = await request(app).post("/api/login").send(user2);
     expect(response.statusCode).toBe(500);
   });

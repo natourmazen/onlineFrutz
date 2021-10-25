@@ -26,7 +26,6 @@ let user3 = {
   isShopOwner: true,
 };
 
-
 describe("POST /api/users ", () => {
   it("should return an error if the request body is invalid", async () => {
     const response = await request(app).post("/api/users").send({});
@@ -45,12 +44,13 @@ describe("POST /api/users ", () => {
     const response = await request(app).post("/api/users").send(user3);
     expect(response.statusCode).toBe(403);
   });
-  
+
   it("should return an exception if an error occurred while saving", async () => {
     User.findOne = jest.fn();
 
-    jest.spyOn(User.prototype, 'save')
-      .mockImplementation(() => {throw new Error});
+    jest.spyOn(User.prototype, "save").mockImplementation(() => {
+      throw new Error();
+    });
     const response = await request(app).post("/api/users").send(user2);
     expect(response.statusCode).toBe(500);
   });
@@ -58,15 +58,14 @@ describe("POST /api/users ", () => {
   it("should return send the token generated", async () => {
     User.findOne = jest.fn();
 
-    jest.spyOn(User.prototype, 'save')
-      .mockImplementation();
+    jest.spyOn(User.prototype, "save").mockImplementation();
 
-    jest.spyOn(User.prototype, 'generateAuthToken')
-      .mockImplementation(() => 'Token-generated');
+    jest
+      .spyOn(User.prototype, "generateAuthToken")
+      .mockImplementation(() => "Token-generated");
     const response = await request(app).post("/api/users").send(user2);
 
-    expect(response.header).toHaveProperty('x-auth-token');
+    expect(response.header).toHaveProperty("x-auth-token");
     expect(response.statusCode).toBe(200);
   });
-
 });
