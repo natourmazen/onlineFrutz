@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
     await user.save();
   }
   catch(exception){
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 
   // Generating token for user

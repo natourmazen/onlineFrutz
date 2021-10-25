@@ -37,6 +37,13 @@ describe("POST /api/login ", () => {
     expect(response.statusCode).toBe(400);
   });
 
+  it("should return an exception if an error occurred while finding user", async () => {
+    jest.spyOn(User, 'findOne')
+      .mockImplementation(() => {throw new Error});
+    const response = await request(app).post("/api/login").send(user2);
+    expect(response.statusCode).toBe(500);
+  });
+
   it("should return an error if password does not exist in the database", async () => {
     User.findOne = jest.fn().mockResolvedValue(user1);
     const response = await request(app).post("/api/login").send(user3);

@@ -37,7 +37,7 @@ router.get("/:id", [login, shopOwner], async (req, res) => {
     // return the result of the transactions
     return res.send(result);
   } catch (exception) {
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 });
 
@@ -66,7 +66,7 @@ router.post("/", login, async (req, res) => {
   for (let fruit of fruitInfo) err = await validateQuantity(fruit);
 
   // return an error in case of any inside the array of objects
-  if (err) return res.status(444).send("Not enough quantity in stock");// should be 400
+  if (err) return res.status(400).send("Not enough quantity in stock");
 
   // Following code block is in order to check if
   // the user bought 2 of the fruit in the same day
@@ -87,7 +87,7 @@ router.post("/", login, async (req, res) => {
       userId: req.user._id,
     });
   } catch (exception) {
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 
   // Initialize variable needed to keep track of the fruits bought
@@ -155,7 +155,7 @@ router.post("/", login, async (req, res) => {
     strawberryPrice = strawberry.price;
     bananaPrice = banana.price;
   } catch (exception) {
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 
   // Initializing the quantity of each fruit
@@ -232,7 +232,7 @@ router.post("/", login, async (req, res) => {
     // End Session
     session.endSession();
   } catch (exception) {
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 });
 

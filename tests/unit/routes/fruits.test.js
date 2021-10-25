@@ -57,42 +57,99 @@ describe("POST /api/fruits ", () => {
         expect(response.statusCode).toBe(400);
     });
 
-    it("should return fruit object with the provided body", async () => {
+    // it("should return validation error if fruit name is already exists in database", async () => {
         
-        Fruit = jest.fn().mockReturnValue();
-        Fruit.save = jest.fn().mockResolvedValue();
+    //     const response = await request(app)
+    //                         .post("/api/fruits")
+    //                         .send(strawberry);
+        
+    //     expect(response.statusCode).toBe(500);
+    // });
+
+    it("should return fruit object with the provided body", async () => {
+        jest.spyOn(Fruit.prototype, 'save')
+        .mockReturnValue(strawberry);
+        
         const response = await request(app)
                             .post("/api/fruits")
                             .send(strawberry);
-
+    
         expect(response.body).toHaveProperty('name');
     });
 
-    it("should return fruit object with the provided body", async () => {
+    it("should return an exception error", async () => {
         
         let testObject = {
             name: 'test-object'
         }
-        Fruit = jest.fn().mockReturnValue();
-        Fruit.save = jest.fn().mockResolvedValue(new Error());
+
+        jest.spyOn(Fruit.prototype, 'save')
+        .mockImplementation(() => {throw new Error()});
+        
         const response = await request(app)
                             .post("/api/fruits")
                             .send(testObject);
-        expect(response.body).not.toHaveProperty('name');
+        expect(response.statusCode).toBe(500);
+    });
+});
+
+describe('PUT /api/fruits/updatefruit', () => {
+
+    it('should return an error if request body is not valid', async () => {
+        const response = await request(app)
+        .put("/api/fruits/updatefruit");
+    
+    expect(response.statusCode).toBe(400);
     });
 
-    // it("should return exception message if error occurred in try block", async () => {
-    
-    //     Fruit = jest.fn().mockResolvedValue(new Error("Something went w"));
-    //     const response = await request(app)
-    //                         .post("/api/fruits")
-    //                         .send(strawberry);
-    //     console.log(response)
-    //     expect(response.body).toMatchObject(strawberry);
-    // });
-    
-    
+    it('should return an error if fruit name is not in the database', async () => {
 
+        jest.spyOn(Fruit, 'findOne')
+            .mockImplementation();
+        
+        const response = await request(app)
+        .put("/api/fruits/updatefruit")
+        .send(strawberry);
+
+    
+    expect(response.statusCode).toBe(400);
+    });
+
+    it('should return an exception if an error occurred while updating', async () => {
+
+        jest.spyOn(Fruit, 'findOne')
+            .mockImplementation(() => strawberry);
+        
+        jest.spyOn(Fruit, 'updateOne')
+            .mockImplementation(() => {throw new Error()});
+        
+        
+        const response = await request(app)
+        .put("/api/fruits/updatefruit")
+        .send(strawberry);
+
+    
+    expect(response.statusCode).toBe(500);
+    });
+
+    it('should return the fruit', async () => {
+
+        jest.spyOn(Fruit, 'findOne')
+            .mockImplementation(() => strawberry);
+        
+        jest.spyOn(Fruit, 'updateOne')
+            .mockImplementation(() => strawberry);
+        
+        
+        const response = await request(app)
+        .put("/api/fruits/updatefruit")
+        .send(strawberry);
+
+    
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty('name');
+
+    });
 });
 
 

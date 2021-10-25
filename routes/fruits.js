@@ -49,7 +49,7 @@ router.post("/", [login, shopOwner], async (req, res) => {
 
     // Catching exceptions if any occurred
   } catch (exception) {
-    res.send(exception.message);
+    res.status(500).send(exception.message);
   }
 });
 
@@ -68,7 +68,6 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
 
   // get the quantity from body if not given set to zero
   // get the price from the body if not given keep it the same
-  // TODO CHECK IF UNDEFINED
   let quantity = req.body.quantity ? req.body.quantity : 0;
   let price = req.body.price ? req.body.price : fruit.price;
 
@@ -88,7 +87,7 @@ router.put("/updatefruit", [login, shopOwner], async (req, res) => {
     return res.send(fruit);
   }
   catch(exception){
-    return res.send(exception.message);
+    return res.status(500).send(exception.message);
   }
 });
 

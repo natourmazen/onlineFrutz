@@ -48,4 +48,5 @@ const Fruit = new mongoose.model("Fruit", fruitSchema);
 module.exports = {
   fruitSchema,
   Fruit,
+  validators
 };
