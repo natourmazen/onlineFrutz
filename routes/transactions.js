@@ -31,7 +31,7 @@ router.get("/:id", [login, shopOwner], async (req, res) => {
     // Get the transactions of the requested id
     let result = await Transaction.find({ userId: req.params.id });
     // Check if the id is valid if not send status 404
-    if (!result.length)
+    if (result.length === 0)
       return res.status(404).send("No transactions available for requested id");
 
     // return the result of the transactions
@@ -66,7 +66,7 @@ router.post("/", login, async (req, res) => {
   for (let fruit of fruitInfo) err = await validateQuantity(fruit);
 
   // return an error in case of any inside the array of objects
-  if (err) return res.status(400).send("Not enough quantity in stock");
+  if (err) return res.status(444).send("Not enough quantity in stock");// should be 400
 
   // Following code block is in order to check if
   // the user bought 2 of the fruit in the same day
