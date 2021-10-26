@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { Fruit } = require("../models/fruit");
 // Joi validation for buying fruits
 exports.validateFruitInfo = (fruitInfo) => {
   // The request will be an array of maximum 2 objects and minimum 1 and is required

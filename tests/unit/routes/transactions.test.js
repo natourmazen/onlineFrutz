@@ -24,18 +24,6 @@ jest.mock("../../../helperFunctions/validateQuantity", () => ({
   validateQuantity: jest.fn(() => false),
 }));
 
-const fruit = {
-  name: "strawberry",
-  quantity: 1,
-  price: 3,
-};
-
-const user2 = {
-  _id: 11111,
-  email: "example@example.com",
-  password: "12345678",
-  isShopOwner: true,
-};
 
 let transaction1 = {
   userId: "1234",
@@ -44,13 +32,8 @@ let transaction1 = {
   date: Date.now(),
 };
 
-let transaction2 = {
-  userId: "1234",
-  totalPrice: 6,
-  date: Date.now(),
-};
 
-let transaction3 = {
+let transaction2 = {
   userId: "1234",
   fruitInfo: [{ name: "banana", quantity: 2 }],
   totalPrice: 7,
@@ -152,7 +135,7 @@ describe("POST /api/transactions", () => {
 
     validateQuantity.mockImplementation(() => false);
 
-    let transactions = [transaction1, transaction3];
+    let transactions = [transaction1, transaction2];
     jest.spyOn(Transaction, "find").mockImplementation(() => {
       return transactions;
     });

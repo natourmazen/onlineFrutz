@@ -1,11 +1,5 @@
 let { Fruit, validators } = require("../../../models/fruit");
 
-const strawberry = {
-  name: "strawberry",
-  quantity: 4,
-  price: 2.5,
-};
-
 describe("Fruit Model validators", () => {
   it("should return validation error if fruit name does not match strawberry or banana", () => {
     let firstValidate = validators[0].validator;
